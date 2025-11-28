@@ -1,5 +1,5 @@
 ### The Goal
-A high-performance 2D image rendering and compositing engine
+A high-performance 2D image rendering and compositing tool
 
 ### Painting
 - **Layer system** > with composition and blending
