@@ -24,3 +24,12 @@ A high-performance 2D image rendering and compositing tool
 ### Windowing & Input
 - **Window management**
 - **Input handling** > mouse, keyboard support
+
+### Build
+```bash
+cmake -B build
+```
+
+```bash
+cmake --build build
+```
