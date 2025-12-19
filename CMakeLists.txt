@@ -18,6 +18,7 @@ add_executable(rendere
     src/core/Layer.cpp
     src/core/Document.cpp
     src/core/Renderer.cpp
+    src/tools/BrushTool.cpp
 )
 target_compile_features(rendere PRIVATE cxx_std_17)
 target_link_libraries(rendere PRIVATE SFML::Graphics)

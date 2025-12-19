@@ -17,6 +17,12 @@ class Document {
         
         const std::vector<std::unique_ptr<Layer>>& getLayers() const;
         
+        // Active Layer Management
+        Layer* getActiveLayer();
+        const Layer* getActiveLayer() const;
+        void setActiveLayer(Layer* layer);
+        void setActiveLayerIndex(size_t index);
+
         uint32_t getWidth() const;
         uint32_t getHeight() const;
 
@@ -24,6 +30,7 @@ class Document {
         uint32_t m_width;
         uint32_t m_height;
         std::vector<std::unique_ptr<Layer>> m_layers;
+        Layer* m_activeLayer = nullptr;
 };
 } // namespace core
 
