@@ -3,12 +3,17 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include "../tools/BrushTool.hpp"
+#include "../gui/Toolbar.hpp"
+#include "../gui/LayerPanel.hpp"
 #include <cstdint>
 #include <algorithm>
+#include <imgui.h>
 
 Application::Application(uint32_t width, uint32_t height)
     : window(sf::VideoMode({width, height}), "RenderER")
 {
+    m_guiManager = std::make_unique<gui::GuiManager>(window);
+
     m_document = std::make_unique<core::Document>(width, height);
     initDocument();
     
@@ -39,6 +44,13 @@ void Application::initDocument() {
 void Application::run() {
     while (window.isOpen()) {
         handleEvents();
+        
+        m_guiManager->update(window, deltaClock.restart().asSeconds());
+
+        if (m_document) {
+            gui::LayerPanel::render(*m_document);
+        }
+        gui::Toolbar::render(m_activeTool);
 
         window.clear(sf::Color(50, 50, 50));
         
@@ -46,37 +58,27 @@ void Application::run() {
             m_renderer.render(*m_document, window);
         }
 
+        m_guiManager->render(window);
+
         window.display();
     }
 }
 
 void Application::handleEvents() {
     while (const std::optional event = window.pollEvent()) {
+        m_guiManager->processEvent(window, *event);
+        
         if (event->is<sf::Event::Closed>()) {
             window.close();
         }
-        else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+        
+        if (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard) {
+             continue;
+        }
+
+        if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
             if (keyPressed->scancode == sf::Keyboard::Scancode::Escape) {
                 window.close();
-            }
-            
-            if (m_activeTool) {
-                 if (auto* brush = dynamic_cast<tools::BrushTool*>(m_activeTool.get())) {
-                     if (keyPressed->scancode == sf::Keyboard::Scancode::B) brush->setColor(sf::Color::Black);
-                     if (keyPressed->scancode == sf::Keyboard::Scancode::R) brush->setColor(sf::Color::Red);
-                     if (keyPressed->scancode == sf::Keyboard::Scancode::E) brush->setColor(sf::Color::Transparent);
-                     
-                     if (keyPressed->scancode == sf::Keyboard::Scancode::LBracket) brush->setSize(brush->getSize() - 1);
-                     if (keyPressed->scancode == sf::Keyboard::Scancode::RBracket) brush->setSize(brush->getSize() + 1);
-                 }
-            }
-
-            if (keyPressed->scancode == sf::Keyboard::Scancode::V) {
-                const auto& layers = m_document->getLayers();
-                if (!layers.empty()) {
-                    bool current = layers.back()->isVisible();
-                    layers.back()->setVisible(!current);
-                }
             }
         }
         else if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
