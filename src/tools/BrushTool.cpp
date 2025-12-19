@@ -61,6 +61,9 @@ void BrushTool::paintAt(const sf::Vector2i& pos, core::Document& document) {
     auto* layer = document.getActiveLayer();
     if (!layer || !layer->isVisible()) return;
 
+    // Mask check
+    const auto& selection = document.getSelection();
+
     int halfSize = m_size / 2;
     int startX = pos.x - halfSize;
     int startY = pos.y - halfSize;
@@ -71,11 +74,14 @@ void BrushTool::paintAt(const sf::Vector2i& pos, core::Document& document) {
         for (int x = startX; x < endX; ++x) {
             if (x >= 0 && x < (int)document.getWidth() &&
                 y >= 0 && y < (int)document.getHeight()) {
-                layer->setPixel(x, y, m_color);
+                
+                // Only paint if point is in selection (or no selection active)
+                if (selection.contains(x, y)) {
+                    layer->setPixel(x, y, m_color);
+                }
             }
         }
     }
 }
 
 } // namespace tools
-

@@ -38,7 +38,9 @@ add_executable(rendere
     src/core/Layer.cpp
     src/core/Document.cpp
     src/core/Renderer.cpp
+    src/core/Selection.cpp
     src/tools/BrushTool.cpp
+    src/tools/SelectionTool.cpp
     src/gui/GuiManager.cpp
     src/gui/Toolbar.cpp
     src/gui/LayerPanel.cpp

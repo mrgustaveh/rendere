@@ -40,7 +40,6 @@ namespace core {
     }
 
     void Document::setActiveLayer(Layer* layer) {
-        // Verify layer belongs to us
         for (const auto& l : m_layers) {
             if (l.get() == layer) {
                 m_activeLayer = layer;
@@ -53,6 +52,14 @@ namespace core {
         if (index < m_layers.size()) {
             m_activeLayer = m_layers[index].get();
         }
+    }
+
+    Selection& Document::getSelection() {
+        return m_selection;
+    }
+
+    const Selection& Document::getSelection() const {
+        return m_selection;
     }
     
     uint32_t Document::getWidth() const {

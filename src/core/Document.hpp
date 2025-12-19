@@ -2,6 +2,7 @@
 #define DOCUMENT_HPP
 
 #include "Layer.hpp"
+#include "Selection.hpp"
 #include <vector>
 #include <memory>
 #include <string>
@@ -17,11 +18,13 @@ class Document {
         
         const std::vector<std::unique_ptr<Layer>>& getLayers() const;
         
-        // Active Layer Management
         Layer* getActiveLayer();
         const Layer* getActiveLayer() const;
         void setActiveLayer(Layer* layer);
         void setActiveLayerIndex(size_t index);
+
+        Selection& getSelection();
+        const Selection& getSelection() const;
 
         uint32_t getWidth() const;
         uint32_t getHeight() const;
@@ -31,6 +34,7 @@ class Document {
         uint32_t m_height;
         std::vector<std::unique_ptr<Layer>> m_layers;
         Layer* m_activeLayer = nullptr;
+        Selection m_selection;
 };
 } // namespace core
 
