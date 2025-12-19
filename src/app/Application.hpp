@@ -1,5 +1,10 @@
+#pragma once
+
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <cstdint>
+#include <memory>
+#include "../core/Document.hpp"
+#include "../core/Renderer.hpp"
 
 class Application {
     public:
@@ -8,5 +13,9 @@ class Application {
 
     private:
         sf::RenderWindow window;
+        std::unique_ptr<core::Document> m_document;
+        core::Renderer m_renderer;
+
         void handleEvents();
+        void initDocument();
 };
