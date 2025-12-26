@@ -1,15 +1,26 @@
 #include "Toolbar.hpp"
 #include "../tools/BrushTool.hpp"
 #include "../tools/SelectionTool.hpp"
+#include "../core/Exporter.hpp"
 #include <imgui.h>
+#include <tinyfiledialogs.h>
 
 namespace gui {
 
-void Toolbar::render(std::unique_ptr<tools::Tool>& activeTool) {
+// Static members for export status feedback
+std::string Toolbar::s_lastExportStatus = "";
+float Toolbar::s_exportStatusTime = 0.0f;
+
+void Toolbar::render(std::unique_ptr<tools::Tool>& activeTool, core::Document* document) {
     if (ImGui::Begin("Tools")) {
         if (ImGui::Button("Brush")) {
              if (!dynamic_cast<tools::BrushTool*>(activeTool.get())) {
-                 activeTool = std::make_unique<tools::BrushTool>();
+                 if (activeTool) {
+                     activeTool->onDeactivate();
+                 }
+                 auto newTool = std::make_unique<tools::BrushTool>();
+                 newTool->onActivate();
+                 activeTool = std::move(newTool);
              }
         }
         ImGui::SameLine();
@@ -17,17 +28,111 @@ void Toolbar::render(std::unique_ptr<tools::Tool>& activeTool) {
              if (auto* brush = dynamic_cast<tools::BrushTool*>(activeTool.get())) {
                  brush->setColor(sf::Color::Transparent);
              } else {
-                 // If not brush, switch to brush first then set to transparent
-                 // Or we could have a dedicated EraserTool, but configuring brush works
+                 if (activeTool) {
+                     activeTool->onDeactivate();
+                 }
                  auto newBrush = std::make_unique<tools::BrushTool>();
                  newBrush->setColor(sf::Color::Transparent);
+                 newBrush->onActivate();
                  activeTool = std::move(newBrush);
              }
         }
         ImGui::SameLine();
         if (ImGui::Button("Selection")) {
             if (!dynamic_cast<tools::SelectionTool*>(activeTool.get())) {
-                activeTool = std::make_unique<tools::SelectionTool>();
+                if (activeTool) {
+                    activeTool->onDeactivate();
+                }
+                auto newTool = std::make_unique<tools::SelectionTool>();
+                newTool->onActivate();
+                activeTool = std::move(newTool);
+            }
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::CollapsingHeader("Export", ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (ImGui::Button("Export as PNG")) {
+                if (document) {
+                    const char* filters[1] = {"*.png"};
+                    const char* filepath = tinyfd_saveFileDialog(
+                        "Export as PNG",
+                        "image.png",
+                        1,
+                        filters,
+                        nullptr
+                    );
+                    
+                    if (filepath) {
+                        core::Exporter exporter;
+                        if (exporter.savePNG(*document, filepath)) {
+                            s_lastExportStatus = "PNG exported successfully!";
+                            s_exportStatusTime = 3.0f;
+                        } else {
+                            s_lastExportStatus = "Failed to export PNG";
+                            s_exportStatusTime = 3.0f;
+                        }
+                    }
+                }
+            }
+
+            if (ImGui::Button("Export as JPG")) {
+                if (document) {
+                    const char* filters[1] = {"*.jpg"};
+                    const char* filepath = tinyfd_saveFileDialog(
+                        "Export as JPG",
+                        "image.jpg",
+                        1,
+                        filters,
+                        nullptr
+                    );
+                    
+                    if (filepath) {
+                        core::Exporter exporter;
+                        if (exporter.saveJPG(*document, filepath)) {
+                            s_lastExportStatus = "JPG exported successfully!";
+                            s_exportStatusTime = 3.0f;
+                        } else {
+                            s_lastExportStatus = "Failed to export JPG";
+                            s_exportStatusTime = 3.0f;
+                        }
+                    }
+                }
+            }
+
+            if (ImGui::Button("Export as BMP")) {
+                if (document) {
+                    const char* filters[1] = {"*.bmp"};
+                    const char* filepath = tinyfd_saveFileDialog(
+                        "Export as BMP",
+                        "image.bmp",
+                        1,
+                        filters,
+                        nullptr
+                    );
+                    
+                    if (filepath) {
+                        core::Exporter exporter;
+                        if (exporter.saveBMP(*document, filepath)) {
+                            s_lastExportStatus = "BMP exported successfully!";
+                            s_exportStatusTime = 3.0f;
+                        } else {
+                            s_lastExportStatus = "Failed to export BMP";
+                            s_exportStatusTime = 3.0f;
+                        }
+                    }
+                }
+            }
+
+            // Show export status message
+            if (s_exportStatusTime > 0.0f) {
+                ImGui::TextColored(
+                    s_lastExportStatus.find("successfully") != std::string::npos ?
+                    ImVec4(0.2f, 0.8f, 0.2f, 1.0f) :  // Green for success
+                    ImVec4(0.8f, 0.2f, 0.2f, 1.0f),    // Red for failure
+                    "%s", s_lastExportStatus.c_str()
+                );
+                s_exportStatusTime -= ImGui::GetIO().DeltaTime;
             }
         }
 
