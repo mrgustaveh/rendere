@@ -5,7 +5,9 @@
 namespace gui {
 
 GuiManager::GuiManager(sf::RenderWindow& window) {
-    ImGui::SFML::Init(window);
+    if (!ImGui::SFML::Init(window)) {
+        // Initialization failed - log or handle error if needed
+    }
     setupStyle();
 }
 
