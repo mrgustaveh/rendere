@@ -32,6 +32,14 @@ FetchContent_Declare(ImGui-SFML
 )
 FetchContent_MakeAvailable(ImGui-SFML)
 
+FetchContent_Declare(tinyfiledialogs
+    GIT_REPOSITORY https://github.com/native-toolkit/tinyfiledialogs.git
+    GIT_SHALLOW ON
+    EXCLUDE_FROM_ALL
+    SYSTEM
+)
+FetchContent_MakeAvailable(tinyfiledialogs)
+
 add_executable(rendere 
     src/main.cpp 
     src/app/Application.cpp
@@ -39,11 +47,14 @@ add_executable(rendere
     src/core/Document.cpp
     src/core/Renderer.cpp
     src/core/Selection.cpp
+    src/core/Exporter.cpp
     src/tools/BrushTool.cpp
     src/tools/SelectionTool.cpp
     src/gui/GuiManager.cpp
     src/gui/Toolbar.cpp
     src/gui/LayerPanel.cpp
+    ${tinyfiledialogs_SOURCE_DIR}/tinyfiledialogs.c
 )
 target_compile_features(rendere PRIVATE cxx_std_17)
+target_include_directories(rendere PRIVATE ${tinyfiledialogs_SOURCE_DIR})
 target_link_libraries(rendere PRIVATE SFML::Graphics ImGui-SFML::ImGui-SFML)
