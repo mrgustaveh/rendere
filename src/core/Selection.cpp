@@ -9,12 +9,11 @@ Selection::Selection()
 }
 
 bool Selection::contains(int x, int y) const {
-    if (!m_active) return true; // If no selection, everything is "selected" (editable)
-                                // Alternatively, if we want strict masking: return false;
-                                // Usually in paint apps: No selection = Draw everywhere. 
-                                // Specific Selection = Draw only inside.
-                                // BUT for "contains", let's be strict: it contains if inside rect.
-                                // The caller (Tool) decides policy: "If active && !contains -> skip"
+    if (!m_active) {
+        // If no selection is active, all points are considered "selected" (drawable)
+        // In paint apps: no selection = draw everywhere
+        return true;
+    }
     return m_rect.contains({x, y});
 }
 
