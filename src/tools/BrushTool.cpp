@@ -8,6 +8,7 @@ namespace tools {
 BrushTool::BrushTool()
     : m_color(sf::Color::Black)
     , m_size(1)
+    , m_lastPos(0, 0)
     , m_isDrawing(false)
 {
 }
@@ -24,10 +25,6 @@ void BrushTool::onPress(const sf::Vector2i& pos, core::Document& document) {
     m_isDrawing = true;
     m_lastPos = pos;
     paintAt(pos, document);
-    
-    if (auto* layer = document.getActiveLayer()) {
-        layer->updateTexture();
-    }
 }
 
 void BrushTool::onDrag(const sf::Vector2i& pos, core::Document& document) {
@@ -40,20 +37,17 @@ void BrushTool::onDrag(const sf::Vector2i& pos, core::Document& document) {
     );
     
     m_lastPos = pos;
-    
-    if (auto* layer = document.getActiveLayer()) {
-        layer->updateTexture();
-    }
 }
 
 void BrushTool::onRelease(const sf::Vector2i& pos, core::Document& document) {
     if (m_isDrawing) {
         paintAt(pos, document);
         m_isDrawing = false;
-        
-        if (auto* layer = document.getActiveLayer()) {
-            layer->updateTexture();
-        }
+    }
+    
+    // Update texture once at the end of the stroke
+    if (auto* layer = document.getActiveLayer()) {
+        layer->updateTexture();
     }
 }
 
