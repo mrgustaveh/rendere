@@ -11,8 +11,6 @@ class Renderer {
         Renderer();
         
         void render(const Document& document, sf::RenderTarget& target);
-
-        private:
 };
 
 } // namespace core
