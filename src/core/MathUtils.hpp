@@ -2,7 +2,6 @@
 #define MATH_UTILS_HPP
 
 #include <cmath>
-#include <cstdlib>
 
 namespace core {
 
