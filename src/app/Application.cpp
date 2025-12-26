@@ -50,7 +50,7 @@ void Application::run() {
         if (m_document) {
             gui::LayerPanel::render(*m_document);
         }
-        gui::Toolbar::render(m_activeTool);
+        gui::Toolbar::render(m_activeTool, m_document.get());
 
         window.clear(sf::Color(50, 50, 50));
         
@@ -76,29 +76,49 @@ void Application::handleEvents() {
              continue;
         }
 
-        if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-            if (keyPressed->scancode == sf::Keyboard::Scancode::Escape) {
-                window.close();
-            }
-        }
-        else if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+        if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
             if (m_activeTool && m_document) {
                 if (mousePressed->button == sf::Mouse::Button::Left) {
-                     m_activeTool->onPress({mousePressed->position.x, mousePressed->position.y}, *m_document);
+                    auto canvasPos = windowToCanvasCoords(mousePressed->position);
+                    m_activeTool->onPress(canvasPos, *m_document);
                 }
             }
         }
         else if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
             if (m_activeTool && m_document) {
                 if (mouseReleased->button == sf::Mouse::Button::Left) {
-                    m_activeTool->onRelease({mouseReleased->position.x, mouseReleased->position.y}, *m_document);
+                    auto canvasPos = windowToCanvasCoords(mouseReleased->position);
+                    m_activeTool->onRelease(canvasPos, *m_document);
                 }
             }
         }
         else if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>()) {
             if (m_activeTool && m_document) {
-                m_activeTool->onDrag({mouseMoved->position.x, mouseMoved->position.y}, *m_document);
+                auto canvasPos = windowToCanvasCoords(mouseMoved->position);
+                m_activeTool->onDrag(canvasPos, *m_document);
             }
         }
     }
+}
+
+sf::Vector2i Application::windowToCanvasCoords(const sf::Vector2i& windowPos) const {
+    if (!m_document) return windowPos;
+    
+    // Get the window size and canvas size
+    auto windowSize = window.getSize();
+    auto canvasWidth = m_document->getWidth();
+    auto canvasHeight = m_document->getHeight();
+    
+    // Prevent division by zero
+    if (windowSize.x == 0 || windowSize.y == 0) return windowPos;
+    
+    // Calculate scaling factors
+    float scaleX = static_cast<float>(canvasWidth) / windowSize.x;
+    float scaleY = static_cast<float>(canvasHeight) / windowSize.y;
+    
+    // Convert window coordinates to canvas coordinates
+    int canvasX = static_cast<int>(windowPos.x * scaleX);
+    int canvasY = static_cast<int>(windowPos.y * scaleY);
+    
+    return {canvasX, canvasY};
 }

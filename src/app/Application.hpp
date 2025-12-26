@@ -27,6 +27,7 @@ class Application {
 
         void handleEvents();
         void initDocument();
+        sf::Vector2i windowToCanvasCoords(const sf::Vector2i& windowPos) const;
 };
 
 #endif // APPLICATION_HPP
