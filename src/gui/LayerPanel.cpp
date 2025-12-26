@@ -16,8 +16,8 @@ void LayerPanel::render(core::Document& document) {
         ImGui::Separator();
 
         // Layer List (Reverse order so top layer is at top of list)
-        for (int i = static_cast<int>(layers.size()) - 1; i >= 0; --i) {
-            auto& layer = layers[i];
+        for (size_t i = layers.size(); i > 0; --i) {
+            auto& layer = layers[i - 1];
             ImGui::PushID(i);
             
             // Visibility Toggle

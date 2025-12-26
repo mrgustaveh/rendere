@@ -8,9 +8,15 @@ Layer::Layer(uint32_t width, uint32_t height, const std::string& name)
     , m_visible(true)
     , m_opacity(255)
 {
-    m_image.resize({width, height}, sf::Color::Transparent);
+    m_image = sf::Image(sf::Vector2u(width, height));
+    // Initialize to transparent
+    for (uint32_t y = 0; y < height; ++y) {
+        for (uint32_t x = 0; x < width; ++x) {
+            m_image.setPixel(sf::Vector2u(x, y), sf::Color::Transparent);
+        }
+    }
     
-    m_texture.resize({width, height});
+    m_texture.create(sf::Vector2u(width, height));
     updateTexture();
 }
 
